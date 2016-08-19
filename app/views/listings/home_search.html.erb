@@ -1,0 +1,350 @@
+<div class="innerPageContent">
+<div class="innerLeft">
+  <form action="/my_search_listing" method="post" id="my_search_form">
+	<div class="sectionHeading">
+          Welcome
+		  <% if !session[:user_id].nil?%>
+			<% @ud = User.find(session[:user_id]) %>
+                <%= @ud.name %>
+			<% end %>
+        
+	</div>
+    <br/>
+        <div class="leftColLabelLeft">Keyword Search</div>
+	<div class="leftColObjectRight">
+          <input type="text" class="mid" id="key_search"  name='key_search' style="width:100px;height:30px;" />
+        </div>
+
+	<div class="clrbth"></div>
+	<div class="labelLeft">Taps</div>
+	<div class="labelRight">Following</div>
+	<div class="labelLeft">56</div>
+	<div class="labelRight">15</div>
+	  <div class="clrbth"></div>
+
+	<div class="filterHeading">Filter Listing</div>
+	<div class="leftColFullContent">
+		<% if params[:buy_rent] == 'Sale'%>
+		<input type="radio" name="buy_rent" value="Rental"/> Rent
+		<input type="radio" name="buy_rent" value="Sale" checked="true"/> Buy
+		<% else %>
+			<input type="radio" name="buy_rent" value="Rental" checked="true"/> Rent
+			<input type="radio" name="buy_rent" value="Sale" /> Buy
+		<% end %>
+	</div>
+
+	<div class="leftColFullContent">
+	Price Range
+	</div>
+
+	<div class="labelLeft">
+		<%=select_tag :min_amount, options_for_select([ ['No Min',''],[500,500],[1000,1000],[5000,5000],[10000,10000],[50000,50000] ]), {:style => "width:80px"} %>
+	</div>
+	<div class="labelMid">to</div>
+	<div class="labelRight">
+		<%=select_tag :max_amount, options_for_select([ ['No Max',''],[500,500],[1000,1000],[5000,5000],[10000,10000],[50000,50000],[100000,100000],[1000000,1000000],[5000000,5000000] ]), {:style => "width:80px"} %>
+	</div>
+	<div class="clrbth tpMargin">&nbsp;</div>
+	<div class="labelLeft">Beds</div>
+	<div class="labelRight">Baths</div>
+
+	<div class="labelLeft">
+		<%=select_tag :bedrooms, options_for_select([ ['NoPref',''],[1, 1],[2,2],[3,3],[4,4] ]), {:style => "width:80px"} %>
+		<!-- <select><option>No Pref</option></select> -->
+	</div>
+
+	<div class="labelRight">
+	<!-- <select><option>No Pref</option></select> -->
+		<%=select_tag :bathrooms, options_for_select([ ['NoPref',''],[1, 1],[2,2],[3,3],[4,4] ]), {:style => "width:80px"} %>
+	</div>
+
+	<div class="clrbth"></div>
+
+	<div class="leftColLabelLeft">Zip</div>
+	<div class="leftColObjectRight"><input type="text" class="mid" name="zip" id="zip" /></div>
+
+	<div class="clrbth"></div>
+
+	<div class="leftColLabelLeft">Only show from last</div>
+	<div class="leftColObjectRight">
+	<%=select_tag :days_before, options_for_select([['7 Days', 7],['15 Days', 15],['1 Month',30],['3 Month',90],['1 Year',365],['All Active','active']]), {:style => "width:80px"} %>
+		<!-- <select><option></option></select> -->
+	</div>
+
+	<div class="clrbth"></div>
+
+	<div class="leftColFullContent form-row">
+	<input type="button" class="submit"  style="width:55px" value="Save" id="save_search" />
+	<input type="button" class="submit"  style="width:55px" value="Search" id="search" />
+        <input type="button" class="cancel"  style="width:55px" value="Reset" id="reset" />
+        </div>
+</form>
+	<div class="leftColFullContent">
+	<input type="checkbox" />
+	Get email alerts
+	</div>
+
+	<div class="linkTextLeftCol">
+	<div class="iconHolder"><img src="/assets/messaging.png"/></div>
+	<div class="iconText">Messaging(2)</div>
+	<div class="clrbth"></div>
+	<div class="iconHolder"><img src="/assets/events.png"/></div>
+	<div class="iconText">Events</div>
+	<div class="clrbth"></div>
+	<div class="iconHolder"><img src="/assets/groups.png"/></div>
+	<div class="iconText">Groups</div>
+	<div class="clrbth"></div>
+	</div>
+
+
+</div>
+<img src="/assets/topInnerForm.png" style="margin:0px 0px 0px 10px;"/>
+<div class="innerRight oneColRight">
+
+
+
+  
+  <div class="clrbth" id="home_results"></div>
+    <div id="listingPanel">
+	<div class="container">
+         <% if !@my_saved_listings.nil? %>
+          <h3 style="color:#024D72"> Suggested Listings for You </h3>
+          <div class="row">
+              <% @i = 0 %>
+              <% @my_saved_listings.each do |listing| %>
+                      <% @i = @i+1 %>
+                <div class="span3" style="background-color: #A36D34;">
+                              <h3>
+                        <%= listing.name %></h3><br/>
+                        <h4><%= listing.listing_type %></h4><br/>
+                        <%= listing.tap_description[0..100] %>
+                        <br/>
+                        <a href="#" id="<%= listing.id %>" class="mylistings" onclick ="showListing(this.id)">Quick View</a>
+                        <%=link_to 'Explore', listing%>
+                </div>
+                <% if @i%3 == 0 %>
+                      </div>
+                      <br/>
+                      <div class="row">
+                <% end%>
+              <% end %>
+              </div>
+         <% end %>
+	<h3 style="color:#024D72"> Recently Added Listings </h3>
+	<div class="row">
+  <% @i = 0 %>
+  <% @recent_listings.each do |listing| %>
+		<% @i = @i+1 %>
+	  <div class="span3">
+			<h3>
+		  <%= listing.name %></h3><br/>
+		  <h4><%= listing.listing_type %></h4><br/>
+		  <%= listing.tap_description[0..100] %>
+		  <br/>
+		  <a href="#" id="<%= listing.id %>" class="mylistings" onclick ="showListing(this.id)">Quick View</a>
+		  <%=link_to 'Explore', listing%>
+	  </div>
+	  <% if @i%3 == 0 %>
+		</div>
+		<br/>
+		<div class="row">
+	  <% end%>
+	<% end %>
+        </div>
+  </div>
+  <% if !@favourite_listings.nil? %>
+     <div class="container">
+	<h3 style="color:#024D72" > Favorite Listings </h3>
+	<div class="row">
+  <% @i = 0 %>
+  <% @favourite_listings.each do |listing| %>
+		<% @i = @i+1 %>
+	  <div class="span3" style="background-color: #EFE994;">
+			<h3>
+		  <%= listing.name %></h3><br/>
+		  <h4><%= listing.listing_type %></h4><br/>
+		  <%= listing.tap_description[0..100] %>
+		  <br/>
+		  <a href="#" id="<%= listing.id %>" class="mylistings" onclick ="showListing(this.id)">Quick View</a>
+		  <%=link_to 'Explore', listing%>
+	  </div>
+	  <% if @i%3 == 0 %>
+		</div>
+		<br/>
+		<div class="row">
+	  <% end%>
+	<% end %>
+  </div>
+    <% end %>
+    <% @listings.each do |l| %>
+	  	<div class="contentUImage"><img src="/assets/user.png"/></div>
+		
+		<div class="contentDiv" style="height:auto"><%= l.name %>
+			<br/>
+			<%=l.listing_type%>
+			<br/>
+                        <%=l.tap_description %>
+			<br/>
+			<a href="#" id=<%=l.id%> class="mylistings" onclick ="showListing(this.id)" ><li>Quick View</li></a>
+                        <%=link_to 'Explore', l %>
+                </div>
+	<div class="clrbth"></div>
+	<% end %>
+     </div>
+	 </div>
+        <a href="#" id="ListingBack" onclick="$('#listingPanel').show();$(this).hide();$('#result_data').html('');" style="display:none">Back</a>
+        <div id="result_data">
+          
+        </div>
+	<!-- <div class="rightColChkBox"><input type="checkbox"/> View Listings Only</div> -->
+
+
+</div>
+    <img src="/assets/bgFormContentBtm.png" style="margin:0px 0px 0px 210px;"/>
+
+
+<div class="clrbth"></div>
+
+</div>
+</div>
+<div id="saveForm" style="display:none;">
+  Name: <input type="text" name="save_name" id="save_name" />
+  <br/>
+  <br/>
+  <div>
+    <input type="button" name="save_submit" id="save_submit" value="Save Search Criteria"/>
+  </div>
+</div>
+
+
+
+<script type="text/javascript">
+
+	
+  
+	function showListing(id)
+  {
+    $.ajax
+    ({
+      type: "GET",
+      url: "/listings/"+id,
+      success: function (data){
+        $("#result_data").html(data);
+        $('#listingPanel').hide();
+        $('#ListingBack').show();
+        $('#editButtonsDiv').hide();
+        $('#rightCheck').hide();
+        $('#downLinkAttach').hide();
+        $('#ContactLink').show();
+      }
+    });
+
+  }
+
+  $('#search').click(function(){
+    $.ajax
+    ({
+      type: "POST",
+      data: $("form").serialize(),
+      url: "/my_search_listing",
+      success: function (data){
+        $("#result_data").html("");
+        $('#listingPanel').show();
+        $('#listingPanel').html(data);
+        $('#ListingBack').hide();
+        if (data == '' || data.length < 1) {
+              alert("No Results found for the given search criteria.");
+          }
+        
+      }
+    });
+
+  });
+	
+	function getContactDetails(listing_id){
+		var user = '<%= session[:user_id]%>';
+		if(user.length == 0){
+			alert("Please Login to Contact the owner of listing");
+			$("#signIn").click();
+			return false;
+			//window.location.href = "/login";
+		}
+		/*if($(".selector").closest('.ui-dialog').is(':visible')) { 
+			return false;
+		}*/
+			$( ".selector" ).dialog({
+			  show: {
+				effect: "blind",
+				duration: 1000
+			  },
+			  hide: {
+				effect: "explode",
+				duration: 1000
+			  },
+			  position : 'top',
+			  title: "Contact Details",
+			  open: function(event, ui) {
+				$('#divInDialog').load('/get_listing_contact?listing_id='+listing_id, function() {
+				  //alert('Load was performed.');
+				  return false;
+				});
+			  }
+			});
+		
+  };
+  $(document).ready(function(){
+  
+	
+    $("#save_search").click(function() {
+
+       if($("#key_search").val() == "" && $("#min_amount").val() == "" && $("#max_amount").val() == "" && $("#bedrooms").val() == "" && $("#bathrooms").val() == "" && $("#zip").val() == ""){
+          alert("Please select the any of the values to save search");
+       }
+       else{
+         $( "#saveForm" ).dialog({
+            show: {
+              effect: "blind",
+              duration: 1000
+            },
+            hide: {
+              effect: "explode",
+              duration: 1000
+            },
+            position : 'top',
+            title: "Save Search Criteria"
+            
+          });
+       }
+    });
+
+    $("#save_submit").click(function() {
+      var url = "/save_search?name="+$("#save_name").val(); // the script where you handle the form input.
+
+      $.ajax({
+             type: "POST",
+             url: url,
+             data: $("form").serialize(), // serializes the form's elements.
+             success: function(data)
+             {
+                 alert(data); // show response from the php script.
+             }
+           });
+
+        return false; // avoid to execute the actual submit of the form.
+     });
+
+     $("#reset").click(function(){
+            $("#max_amount").val("0");
+            $("#min_amount").val("0");
+            $("#bedrooms").val("0");
+            $("#zip").val("");
+            $("#days_before").val("0");
+            $("#bathrooms").val("7");
+            $("#key_search").val("");
+
+           });
+
+  });
+
+  
+</script>

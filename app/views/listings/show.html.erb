@@ -1,0 +1,264 @@
+<script src="http://code.jquery.com/ui/1.10.2/jquery-ui.js"></script>
+<link rel="stylesheet" href="http://code.jquery.com/ui/1.10.2/themes/smoothness/jquery-ui.css" />
+<%=javascript_include_tag 'smartpaginator' %>
+<%=stylesheet_link_tag 'smartpaginator'%>
+
+<% @length = @pictures.length %>
+<% @listing_name = @listing.name %>
+<script>
+  var length = "<%= @length %>";
+  $('#black').smartpaginator({ totalrecords: length,
+                                        recordsperpage: 1,
+                                        datacontainer: 'homeImageHolder',
+                                        dataelement: 'div',
+                                        theme: 'black' });
+  var lname = "<%= @listing_name %>";
+  $(document).ready(function(){
+     $("#page_heading").find('h1').html(lname);
+   });
+
+</script>
+<div class="pageHeading"><h1><%=@listing.name %></h1></div>
+<p id="notice"><%= notice %></p>
+<div class="infoAction">
+  
+  <div class="contentInnerLeft">
+    <div class="homeImageHolder" id="homeImageHolder">
+      <% @pictures.each do |p| %>
+        <div>
+          <%= image_tag url_for(:action => 'show_image', :id => p.id), :size => "300x200" %>
+        </div>
+    <% end %>
+
+      <!-- <img src="/assets/home.png"/>
+      <img src="/assets/pagination.png" style="margin:10px 0px;"/> -->
+    </div>
+    <div id="black" style="margin: auto;"></div>
+  </div>
+
+  <div class="contentInnerRight">
+    <div id="editButtonsDiv">
+      <input type="button" class="btn-rename" value="Rename"/>
+      <!--      <%= link_to 'Modify', edit_listing_path(@listing) %> -->
+      <a href=<%=edit_listing_path(@listing) %> ><input type="button" class="btn-modify" value="Modify"/> </a>
+      <%= link_to (button_tag "Delete", :class => "btn-delete", :type => "input"),
+        listing_path(@listing), :method => :delete, :confirm => "Are you sure?", :rel => "nofollow" %>
+	  
+      <input type="button" class="btn-event" value="Add Event"/>
+    </div>
+    <div id="ContactLink" style="display:none" >
+      <div>
+        
+        <% if @favourite %>
+          <a href="#" id="voteremove" onclick="voteremove()">
+            <image src="/assets/star.jpeg" width="50" height="50" />
+          </a>
+          <a href="#" id="voteup" onclick="voteup()"  style="display:none">
+            <image src="/assets/read-star.png" width="50" height="50" />
+          </a>
+        <% else %>
+          <a href="#" id="voteup" onclick="voteup()" >
+            <image src="/assets/read-star.png" width="50" height="50" />
+          </a>
+        <a href="#" id="voteremove" onclick="voteremove()" style="display:none">
+            <image src="/assets/star.jpeg" width="50" height="50" />
+          </a>
+        <% end %>
+        <a href="#" id="votedown" onclick="votedown()" >
+            <image src="/assets/block.png" width="50" height="50" />
+          </a>
+      </div>
+      <br/>
+      <input type="button" class="btn-contact" value="Contact" onclick="getContactDetails(this.id); return false;"  id=<%=@listing.id%> />
+      <div class="selector">
+        <div id="divInDialog"></div>
+      </div>
+    </div>
+  </div>
+
+
+</div>
+<div class="contentInnerLeft">
+  <div class="well">
+    <%= @listing.description %>
+  </div>
+  <div class="info">
+    <div class="left">Listing Type:</div>
+    <div class="right"><%= @listing.listing_type %></div>
+  </div>
+
+  <div class="info">
+    <div class="left">Price</div>
+    <div class="right"><%= @listing.price %></div>
+  </div>
+
+  <!--<div class="info">
+    <div class="left">Loan Payment</div>
+    <div class="right"><%= @listing.laonpayment %></div>
+  </div> -->
+
+  <div class="info">
+    <div class="left">Bedroom</div>
+    <div class="right"><%= @listing.bedrooms %></div>
+  </div>
+
+  <div class="info">
+    <div class="left">Bathrooms</div>
+    <div class="right"><%= @listing.bathrooms %></div>
+  </div>
+  <div class="info">
+    <div class="left">Square Footage</div>
+    <div class="right"><%= @listing.squarefootage %></div>
+  </div>
+  <div class="info">
+    <div class="left">$/sqft</div>
+    <div class="right"><%= @listing.costpersqft %></div>
+  </div>
+
+  <div class="info">
+    <div class="left">Type</div>
+    <div class="right"><%= @listing.adjustment_type %></div>
+  </div>
+
+  <div class="info">
+    <div class="left">Year Built</div>
+    <div class="right"><%= @listing.yearbuilt %></div>
+  </div>
+
+  <div class="info">
+    <div class="left">Lot Size</div>
+    <div class="right"><%= @listing.lotsize %></div>
+  </div>
+
+  <div class="info">
+    <div class="left">Days on Tapski</div>
+    <% diff_days = ((((Time.now - @listing.created_at).abs)/3600)/24).to_i %>
+    <% if diff_days < 1  %>
+      <% diff_days = "To Day" %>
+    <% end %>
+
+    <div class="right"><%= diff_days %></div>
+  </div>
+  <div class="info">
+    <div class="left">Neighborhood</div>
+    <div class="right"><%= @listing.neighbourhood %></div>
+  </div>
+  <div class="info">
+    <div class="left">MLS#</div>
+    <div class="right"><%= @listing.mls %></div>
+  </div>
+  <div class="info">
+    <div class="left">Status</div>
+    <div class="right"><% if @listing.status == true%>
+        Active
+      <% else %>
+        InActive
+      <% end %></div>
+  </div>
+  <div class="info">
+    <div id ="map_canvas" style="width:100%;height:200px;border-radius:10px;margin-top:20px;">
+    </div>
+</div>
+
+
+</div>
+
+<div class="contentInnerRight" id="rightCheck">
+  <div><input type="checkbox" id="activeChk"> <label for="activeChk">Active</label></div>
+  <div><input type="checkbox" id="reportChk"> <label for="reportChk">Report this Weekly</label></div>
+  <div><input type="checkbox" id="tapsChk"> <label for="tapsChk">Use this listing to search Wanted Taps</label></div>
+</div>
+
+  <%=hidden_field_tag :long, @listing.long, {:id=>"longitude"}%>
+  <%=hidden_field_tag :lat, @listing.lat, {:id=>"lattitude"}%>
+<!-- <div class="bottomContent" id="downLinkAttach">
+  
+  <div> Link to: <input type="text" /> </div>
+  <div>Attach Docs: <input type="file" /></div>
+</div> -->
+
+
+<% @arq = @ajxRqst %>
+<script type="text/javascript">
+
+  function voteup(){
+    var lid="<%=@listing.id%>"
+
+    $.ajax
+    ({
+      type: "post",
+      url: "/vote_listing?lid="+lid,
+      success: function (data){
+        $("#voteup").hide();
+        $("#voteremove").show();
+      }
+    });
+
+  }
+
+  function votedown(){
+    var lid="<%=@listing.id%>"
+
+    $.ajax
+    ({
+      type: "post",
+      url: "/votedown_listing?lid="+lid,
+      success: function (data){
+        //$("#voteup").hide();
+        //$("#voteremove").show();
+      }
+    });
+
+  }
+
+  function voteremove(){
+    var lid="<%=@listing.id%>";
+    $.ajax
+    ({
+      type: "post",
+      url: "/remove_vote_listing?lid="+lid,
+      success: function (data){
+        $("#voteup").show();
+        $("#voteremove").hide();
+      }
+    });
+
+  }
+
+  $(document).ready(function(){
+     var ajaxRequest = <%=  @arq %>;
+     if(ajaxRequest == true)
+       {
+         $(".content").attr("style","height:760px");
+         $("#editButtonsDiv").hide();
+          $("#rightCheck").hide();
+       }
+     var map;
+      var lat;
+      var lng;
+    /* HTML 5 geolocation. */
+
+          lat = 40.714623;
+          lng = -74.006605;
+
+          var myOptions = {
+            zoom: 14,
+            center: new google.maps.LatLng(lat, lng),
+            mapTypeId: google.maps.MapTypeId.ROADMAP
+          };
+          directionsDisplay = new google.maps.DirectionsRenderer();
+          directionsDisplay.suppressMarkers = true;
+          map = new google.maps.Map(document.getElementById('map_canvas'), myOptions);
+          var edit_lat= $("#longitude").val();
+    var edit_lng  = $("#lattitude").val();
+    var marker = new google.maps.Marker({
+                            position: new google.maps.LatLng(edit_lat, edit_lng),
+                            map: map
+                        });
+    if((edit_lng.length > 0) || (edit_lat.length > 0))
+    {
+      marker.setMap(map);
+      map.setCenter(new google.maps.LatLng(edit_lat, edit_lng));
+    }
+  });
+</script>

@@ -1,0 +1,85 @@
+<div id="detailsDiv">
+<% if @ud.profile_public%>
+<p>
+  <b>Email:</b>
+  <%= @ud.email %>
+</p>
+<p>
+  <b>Name:</b>
+  <%= @ud.first_name %>
+  <nbsp/>
+  <%= @ud.last_name %>
+</p>
+<p>
+  <% if !@ud.picture_id.nil? %>
+    <b>Picture:</b>
+    <%= image_tag url_for(:action => 'show_image', :id => @ud.picture_id, :controller => 'listings'), :size => "100x100" %>
+  <% end %>
+</p>
+<p>
+  <b>Address:</b>
+  <div>
+  	<%= @ud.address1 %>
+  	<br/>
+  	<%= @ud.address2 %>
+  	<br/>
+  	<%= @ud.city %>
+  	<br/>
+  	<%= @ud.zip %>
+  </div>
+</p>
+<p>
+  <b>phone:</b>
+  <%= @ud.phone %>
+</p>
+<% else %>
+<h2> User is not allowing to share his details. You can drop him a message if you want.</h2>
+<br/>
+<% end %>
+<a href="#" onclick="messageSending_form()"> Send Message</a>
+</div>
+<div id="sendingForm" style="display:none" >
+  <form action="#" name="reply_messsage_form" method="post" remote="true" id="messageForm">
+    <%=hidden_field_tag :mesg_id,'',{:id =>"message_id"} %>
+    Subject:<%=text_field_tag :subject %>
+    <br/>
+    Message:<%=text_area :body,'',:rows =>4,:cols=>35 %>
+    <div style="float:right">
+      <input type="button" value="Post Message" id="replyBtn" />
+    </div>
+    <%=hidden_field_tag :listing_owner, @user.id,{:id=>"owner_id"} %>
+    <%=hidden_field_tag :listing_id, params[:listing_id],{:id=>"listing_id"} %>
+  </form>
+</div>
+
+
+
+<script type="text/javascript">
+  function messageSending_form(){
+    $("#detailsDiv").hide();
+    $("#sendingForm").show();
+   
+  }
+
+  $(document).ready(function(){
+     $("#replyBtn").click(function() {
+
+    var url = "/send_message"; // the script where you handle the form input.
+
+    $.ajax({
+           type: "POST",
+           url: url,
+           data: $("#messageForm").serialize(), // serializes the form's elements.
+           success: function(data)
+           {
+
+               alert(data); // show response from the php script.
+               $( ".selector" ).dialog('close');
+           }
+             });
+
+        return false; // avoid to execute the actual submit of the form.
+    });
+  });
+
+</script>

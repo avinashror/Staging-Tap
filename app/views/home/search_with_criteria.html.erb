@@ -1,0 +1,40 @@
+<% if !@listings.empty? %>
+  <div id="listingPanelNew">
+    <div class="row">
+      <% @i = 0 %>
+      <% @listings.each do |listing| %>
+                    <% @i = @i+1 %>
+              <div class="span3" style="background-color: #EFE994;">
+                            <h3>
+                      <%= listing.name %></h3><br/>
+                      <h4><%= listing.listing_type %></h4><br/>
+                      <%= listing.tap_description[0..100] %>
+                      <br/>
+                      <a href="#" id="<%= listing.id %>" class="mylistings" onclick ="showListing(this.id)">Quick View</a>
+                      <%=link_to 'Explore', listing%>
+              </div>
+              <% if @i%3 == 0 %>
+                    </div>
+                    <br/>
+                    <div class="row">
+              <% end%>
+            <% end %>
+    </div>
+
+     </div>
+<% end %>
+    <% if(!params[:key_search].nil? && params[:key_search] != '') %>
+      <h1> KEY Search Results </h1>
+      <% @lists_key.each do |l| %>
+	  	<div class="contentUImage"><img src="/assets/user.png"/></div>
+		<div class="contentDiv">Listing <%= l.id%>
+			<br/>
+			<%=l.listing_type%>
+			<br/>
+			<a href="#" id=<%=l.id%> class="mylistings" onclick ="showListing(this.id)" ><li>Listing<%=l.id%></li></a>
+		</div>
+	<div class="clrbth"></div>
+	<% end %>
+    <% end %>
+        
+     

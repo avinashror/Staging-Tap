@@ -1,0 +1,116 @@
+<!DOCTYPE>
+<html>
+<head>
+  <title>Tapski</title>
+  <%= stylesheet_link_tag    "application", :media => "all" %>
+  <%= stylesheet_link_tag "structure.css", "style.css","jquery.css","bootstrap" %>
+  <%= javascript_include_tag "application", "jquery-ui-1.10.0.custom.js", "jquery-ui-1.10.2.custom.js" %>
+  <script src="http://maps.googleapis.com/maps/api/js?key=AIzaSyARDa-zSGZaZpd_U05Qxu4tkqRHJg6Vieg&libraries=geometry,places&sensor=false" />
+  <script src="http://code.jquery.com/ui/1.10.2/jquery-ui.js"></script>
+<link rel="stylesheet" href="http://code.jquery.com/ui/1.10.2/themes/smoothness/jquery-ui.css" />
+  <%= csrf_meta_tags %>
+</head>
+<body>
+
+<!--================Container=================-->
+<div class="container">
+<!--==============Header=============-->
+<div class="header">
+<div class="logo"><a href="/"><img src="/assets/Tapski_logo.png" alt="Tapski" title="Tapski" width="218" height="71" /></a></div>
+<ul>
+<li><a href="#" title="Contact"><span id="icons"><img src="/assets/contact_icon.jpg" alt="" /></span>Contact</a></li>
+<% if !session[:user_id].nil? %>
+<li>
+  <% @user = User.find(session[:user_id])  %>
+  <% @message_count = @user.unread_message_count %>
+  <a href="/messages" title="Profile"><span id="icons"><img src="/assets/messaging.png"/></span>
+	Messaging(<%=@message_count %>)
+        </a>
+</li>
+<li><a href="/profile" title="Profile"><span id="icons"><img src="/assets/contact_icon.jpg" alt="" /></span>Profile</a></li>
+<li>
+		<a href="/signout" title="Signout"><img src="/assets/signout_icon.jpg" alt="" />Signout</a>
+</li>
+
+<% else %>
+	<li>
+		<a href="#" title="SignIn" id="signIn" onclick="$('#formSignInId').dialog('open');"><img src="/assets/signout_icon.jpg" alt="" />Sign In</a>
+	</li>
+<% end %>
+
+</ul>
+<!--==============Nav=============-->
+
+<div class="nav">
+<% if current_user%>
+<ul>
+<li ><a href="/" title="Agents" id="home">Home</a></li>
+<li><a href="/listings/new" id="new_listing" title="Home Searches">Create Listing</a></li>
+<li><a href="/mylistings" id="my_listings" title="About Us">My Listing</a></li>
+<li><a href="/mysearches" title="Saved Searches">Saved Searches</a></li>
+</ul>
+<% end %>
+</div>
+
+<!--==============Nav End=============-->
+</div>
+<!--==============Header End=============-->
+<!--==============Content=============-->
+<div class="content">
+<!--=============Top Section=============-->
+
+<%= yield %>
+</div>
+<!--==============Content End=============-->
+<!--==============Footer=============-->
+<div class="footer">&copy;2012 allright reserved.</div>
+<% if !current_user %>
+<div class="form-bg" id="formSignInId"">
+
+     <div id="signInDiv">
+  <%= form_tag "/auth/identity/callback" do %>
+		<table>
+                  <tr><td>Email</td>
+		<td><%= text_field_tag :auth_key %></td></tr>
+		<tr><td>
+		Password</td><td>
+		<%= password_field_tag :password %></td></tr>
+                <tr>
+                  <td>
+                  <%= submit_tag "Login" %></td>
+                </tr>
+                </table>
+	<% end %>
+	<br/>
+	<%= link_to 'New User Sign up', new_identity_path %>
+        </div>
+   
+  </div>
+<% end %>
+</div>
+</body>
+
+<script>
+$('document').ready(function(){
+	$("#new_listing").click(function(){
+			//$(".active").removeClass("active");
+			$("#new_listing").parent().addClass("active");
+
+	});
+        $("#formSignInId")
+      .dialog(
+       {
+        bgiframe: true,
+        autoOpen: false,
+        x:100,
+        y:100,
+        position:'top',
+        width: 320,
+        title : "Sign In",
+        //height: 100,
+        modal: true
+       }
+      );
+});
+</script>
+</html>
